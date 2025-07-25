@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "700368824359",
+    "project_id": "flutter-tic-tac-toe-94ef7",
+    "storage_bucket": "flutter-tic-tac-toe-94ef7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:700368824359:android:cfa3fb8cf189ad0b310602",
+        "android_client_info": {
+          "package_name": "com.example.tic_tac_toe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1udY5EaKEW7_HLFLgryPWhmDp4OA4lh8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
