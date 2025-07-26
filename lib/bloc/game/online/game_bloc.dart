@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:bloc/bloc.dart';
-import 'package:tic_tac_toe/bloc/game_event.dart';
-import 'package:tic_tac_toe/bloc/game_state.dart';
+import 'package:tic_tac_toe/bloc/game/online/game_event.dart';
+import 'package:tic_tac_toe/bloc/game/online/game_state.dart';
 import 'package:tic_tac_toe/model/game_data.dart';
 import 'package:tic_tac_toe/model/game_data_firestore.dart';
 import 'package:tic_tac_toe/model/game_model.dart';

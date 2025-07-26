@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:notes_app/services/auth/auth_user.dart' show AuthUser;
+import 'package:tic_tac_toe/model/auth/auth_user.dart';
+
 
 @immutable
 abstract class AuthState {

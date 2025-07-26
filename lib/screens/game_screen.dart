@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tic_tac_toe/bloc/game_bloc.dart';
-import 'package:tic_tac_toe/bloc/game_event.dart';
-import 'package:tic_tac_toe/bloc/game_state.dart';
+import 'package:tic_tac_toe/bloc/game/online/game_bloc.dart';
+import 'package:tic_tac_toe/bloc/game/online/game_event.dart';
+import 'package:tic_tac_toe/bloc/game/online/game_state.dart';
 import 'package:tic_tac_toe/model/game_data.dart';
 import 'package:tic_tac_toe/model/game_model.dart';
 import 'package:tic_tac_toe/model/game_status.dart';

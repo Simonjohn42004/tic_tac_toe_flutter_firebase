@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tic_tac_toe/bloc/game_bloc.dart';
-import 'package:tic_tac_toe/bloc/offline/offline_game_bloc.dart';
+import 'package:tic_tac_toe/bloc/game/online/game_bloc.dart';
+import 'package:tic_tac_toe/bloc/game/offline/offline_game_bloc.dart';
 import 'package:tic_tac_toe/provider/offline_game_provider.dart';
 import 'package:tic_tac_toe/provider/online_game_provider.dart';
 import 'package:tic_tac_toe/screens/game_screen.dart';

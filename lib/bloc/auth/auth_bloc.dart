@@ -1,11 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:notes_app/services/auth/auth_provider.dart';
-import 'package:notes_app/services/auth/bloc/auth_event.dart';
-import 'package:notes_app/services/auth/bloc/auth_state.dart';
 import 'dart:developer' as devtools show log;
 
+import 'package:tic_tac_toe/bloc/auth/auth_event.dart';
+import 'package:tic_tac_toe/bloc/auth/auth_state.dart';
+import 'package:tic_tac_toe/provider/auth/auth_provider.dart';
+
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  AuthBloc(AuthProvider provider)
+  AuthBloc(AuthenticationProvider provider)
     : super(const AuthStateUninitialized(isLoading: true)) {
     // send email verification
     on<AuthEventSendEmailVerification>((event, emit) async {
