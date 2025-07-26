@@ -1,6 +1,6 @@
 // game_state.dart
 import 'package:equatable/equatable.dart';
-import 'package:tic_tac_toe/model/game_model.dart';
+import 'package:tic_tac_toe/model/game/game_model.dart';
 
 class GameState extends Equatable {
   final GameModel? gameModel;

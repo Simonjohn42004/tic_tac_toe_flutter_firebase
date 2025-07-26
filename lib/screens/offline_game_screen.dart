@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tic_tac_toe/bloc/game/offline/offline_game_bloc.dart';
 import 'package:tic_tac_toe/bloc/game/offline/offline_game_event.dart';
 import 'package:tic_tac_toe/bloc/game/offline/offline_game_state.dart';
-import 'package:tic_tac_toe/model/game_model.dart';
-import 'package:tic_tac_toe/model/game_status.dart';
+import 'package:tic_tac_toe/model/game/game_model.dart';
+import 'package:tic_tac_toe/model/game/game_status.dart';
 
 class OfflineGameScreen extends StatefulWidget {
   const OfflineGameScreen({super.key});

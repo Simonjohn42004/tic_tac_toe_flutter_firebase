@@ -1,4 +1,4 @@
-import 'package:tic_tac_toe/model/game_model.dart';
+import 'package:tic_tac_toe/model/game/game_model.dart';
 
 abstract class OfflineGameState {}
 

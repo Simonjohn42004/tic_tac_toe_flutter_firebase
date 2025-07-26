@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:tic_tac_toe/model/game_model.dart';
-import 'package:tic_tac_toe/model/game_status.dart';
-import 'package:tic_tac_toe/provider/game_provider.dart';
+import 'package:tic_tac_toe/model/game/game_model.dart';
+import 'package:tic_tac_toe/model/game/game_status.dart';
+import 'package:tic_tac_toe/provider/game/game_provider.dart';
 
 class OfflineGameProvider implements GameProvider {
   final StreamController<GameModel?> _gameModelController =

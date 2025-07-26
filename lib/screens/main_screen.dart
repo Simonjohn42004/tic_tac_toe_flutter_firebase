@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tic_tac_toe/bloc/game/ai/offline_ai_bloc.dart';
 import 'package:tic_tac_toe/bloc/game/online/game_bloc.dart';
 import 'package:tic_tac_toe/bloc/game/offline/offline_game_bloc.dart';
-import 'package:tic_tac_toe/provider/offline_game_provider.dart';
-import 'package:tic_tac_toe/provider/online_game_provider.dart';
+import 'package:tic_tac_toe/provider/game/offline_ai_provider.dart';
+import 'package:tic_tac_toe/provider/game/offline_game_provider.dart';
+import 'package:tic_tac_toe/provider/game/online_game_provider.dart';
 import 'package:tic_tac_toe/screens/game_screen.dart';
-import 'package:tic_tac_toe/component/glowing_button.dart';
+import 'package:tic_tac_toe/screens/offline_ai_game_screen.dart'; // new import for AI screen
 import 'package:tic_tac_toe/screens/offline_game_screen.dart';
+import 'package:tic_tac_toe/component/glowing_button.dart';
 
-/// MainPage:
-/// - Displays three primary actions (offline, online, room join)
-/// - Handles room ID input and navigates with appropriate GameBloc injection
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
 
@@ -21,9 +21,9 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   String _roomId = '';
 
-  /// Handles Play Offline button: navigate with OfflineGameProvider
-  void _handlePlayOffline() {
-    debugPrint('[DEBUG] Play Offline button clicked');
+  /// Navigate to Human vs Human offline game
+  void _handleOfflineHumanVsHuman() {
+    debugPrint('[DEBUG] Human vs Human Offline clicked');
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -35,9 +35,23 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  /// Handles Play Online button: navigate with OnlineGameProvider (new room)
-  void _handlePlayOnline() {
-    debugPrint('[DEBUG] Play Online button clicked');
+  /// Navigate to Human vs AI offline game
+  void _handleOfflineHumanVsAI() {
+    debugPrint('[DEBUG] Human vs AI Offline clicked');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider(
+          create: (_) => OfflineAIGameBloc(OfflineAIProvider(aiSymbol: 'O')),
+          child: const OfflineAIGameScreen(),
+        ),
+      ),
+    );
+  }
+
+  /// Navigate to online game (new room)
+  void _handleOnline() {
+    debugPrint('[DEBUG] Online Play clicked');
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -49,24 +63,16 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  /// Handles Room ID input change
-  void _handleRoomIdChanged(String value) {
-    debugPrint("[DEBUG] Room ID changed to '$value'");
-    setState(() => _roomId = value);
-  }
-
-  /// Handles Enter Room button: navigate with OnlineGameProvider joining existing room
-  void _handleEnterRoom() {
+  /// Navigate to join existing online room
+  void _handleJoinRoom() {
     final id = _roomId.trim();
-    debugPrint("[DEBUG] Enter Room with ID: '$id'");
-
+    debugPrint('[DEBUG] Entering room with ID: $id');
     if (id.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Please enter a room ID")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid room ID')),
+      );
       return;
     }
-
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -96,9 +102,17 @@ class _MainPageState extends State<MainPage> {
                 ),
               ),
               const SizedBox(height: 48),
-              GlowingButton(label: 'Play Offline', onTap: _handlePlayOffline),
+              GlowingButton(
+                label: 'Play Offline',
+                onTap: _handleOfflineHumanVsHuman,
+              ),
+              const SizedBox(height: 10),
+              GlowingButton(
+                label: 'Play with AI',
+                onTap: _handleOfflineHumanVsAI,
+              ),
               const SizedBox(height: 20),
-              GlowingButton(label: 'Play Online', onTap: _handlePlayOnline),
+              GlowingButton(label: 'Play Online', onTap: _handleOnline),
               const SizedBox(height: 32),
               SizedBox(
                 width: 260,
@@ -124,11 +138,15 @@ class _MainPageState extends State<MainPage> {
                       ),
                     ),
                   ),
-                  onChanged: _handleRoomIdChanged,
+                  onChanged: (value) {
+                    setState(() {
+                      _roomId = value;
+                    });
+                  },
                 ),
               ),
               const SizedBox(height: 16),
-              GlowingButton(label: 'Enter Room', onTap: _handleEnterRoom),
+              GlowingButton(label: 'Enter Room', onTap: _handleJoinRoom),
             ],
           ),
         ),

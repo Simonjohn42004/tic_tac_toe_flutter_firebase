@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:tic_tac_toe/model/game_status.dart';
+import 'package:tic_tac_toe/model/game/game_status.dart';
 
 class GameModel {
   String gameId;

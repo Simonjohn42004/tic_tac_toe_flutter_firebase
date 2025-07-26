@@ -3,11 +3,11 @@ import 'dart:math';
 import 'package:bloc/bloc.dart';
 import 'package:tic_tac_toe/bloc/game/online/game_event.dart';
 import 'package:tic_tac_toe/bloc/game/online/game_state.dart';
-import 'package:tic_tac_toe/model/game_data.dart';
-import 'package:tic_tac_toe/model/game_data_firestore.dart';
-import 'package:tic_tac_toe/model/game_model.dart';
-import 'package:tic_tac_toe/provider/game_provider.dart';
-import 'package:tic_tac_toe/provider/offline_game_provider.dart';
+import 'package:tic_tac_toe/model/game/game_data.dart';
+import 'package:tic_tac_toe/model/game/game_data_firestore.dart';
+import 'package:tic_tac_toe/model/game/game_model.dart';
+import 'package:tic_tac_toe/provider/game/game_provider.dart';
+import 'package:tic_tac_toe/provider/game/offline_game_provider.dart';
 
 class GameBloc extends Bloc<GameEvent, GameState> {
   final GameProvider provider;

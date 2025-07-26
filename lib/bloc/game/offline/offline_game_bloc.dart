@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'offline_game_event.dart';
 import 'offline_game_state.dart';
-import 'package:tic_tac_toe/provider/offline_game_provider.dart';
+import 'package:tic_tac_toe/provider/game/offline_game_provider.dart';
 
 class OfflineGameBloc extends Bloc<OfflineGameEvent, OfflineGameState> {
   final OfflineGameProvider _provider;
