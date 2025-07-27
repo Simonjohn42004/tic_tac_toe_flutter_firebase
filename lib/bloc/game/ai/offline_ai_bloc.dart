@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tic_tac_toe/bloc/game/ai/offline_ai_event.dart';
 import 'package:tic_tac_toe/bloc/game/ai/offline_ai_state.dart';
 import 'package:tic_tac_toe/model/game/game_model.dart';
+import 'package:tic_tac_toe/model/game/game_status.dart';
 import 'package:tic_tac_toe/provider/game/offline_ai_provider.dart';
 
 class OfflineAIGameBloc extends Bloc<OfflineAIGameEvent, OfflineAIGameState> {
@@ -34,14 +35,33 @@ class OfflineAIGameBloc extends Bloc<OfflineAIGameEvent, OfflineAIGameState> {
   ) async {
     await _provider.makeMove(event.index);
     final model = _provider.currentGameModel;
-    if (model != null) {
-      _checkIfFinished(model, emit);
-      // Only emit progress if game not finished (otherwise finished state already emitted)
-      if (model.gameStatus.toString() == "GameStatus.inProgress") {
-        emit(OfflineAIGameInProgress(model));
-      }
-    } else {
+    if (model == null) {
       emit(OfflineAIGameFailure("Error making move"));
+      return;
+    }
+
+    emit(OfflineAIGameInProgress(model));
+    _checkIfFinished(model, emit);
+
+    // Wait before AI makes move
+    await Future.delayed(const Duration(seconds: 2));
+
+    final isAITurn =
+        model.gameStatus == GameStatus.inProgress &&
+        model.currentPlayer == _provider.aiSymbol;
+
+    if (isAITurn) {
+      await _provider.makeAIMove();
+      final updatedModel = _provider.currentGameModel;
+
+      if (updatedModel != null) {
+        _checkIfFinished(updatedModel, emit);
+        if (updatedModel.gameStatus == GameStatus.inProgress) {
+          emit(OfflineAIGameInProgress(updatedModel));
+        }
+      } else {
+        emit(OfflineAIGameFailure("Error during AI move"));
+      }
     }
   }
 
@@ -59,7 +79,7 @@ class OfflineAIGameBloc extends Bloc<OfflineAIGameEvent, OfflineAIGameState> {
   }
 
   void _checkIfFinished(GameModel model, Emitter<OfflineAIGameState> emit) {
-    if (model.gameStatus.toString() == "GameStatus.finished") {
+    if (model.gameStatus == GameStatus.finished) {
       String result;
       if (model.winner == _provider.humanSymbol) {
         result = "You Win!";

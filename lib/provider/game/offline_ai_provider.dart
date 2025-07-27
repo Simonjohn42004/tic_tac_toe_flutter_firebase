@@ -40,7 +40,7 @@ class OfflineAIProvider implements GameProvider {
     _gameModelController.add(_gameModel);
     // If AI starts, make first move immediately.
     if (_gameModel.currentPlayer == aiSymbol) {
-      await _makeAIMove();
+      await makeAIMove();
     }
     return "-1";
   }
@@ -63,7 +63,7 @@ class OfflineAIProvider implements GameProvider {
 
     // If AI is to start, make AI's move
     if (_gameModel.currentPlayer == aiSymbol) {
-      await _makeAIMove();
+      await makeAIMove();
     }
   }
 
@@ -75,12 +75,6 @@ class OfflineAIProvider implements GameProvider {
 
     // Human move logic
     await _placeMove(index, humanSymbol);
-
-    // If game is not finished, let AI play automatically.
-    if (_gameModel.gameStatus == GameStatus.inProgress &&
-        _gameModel.currentPlayer == aiSymbol) {
-      await _makeAIMove();
-    }
   }
 
   Future<void> _placeMove(int index, String symbol) async {
@@ -112,7 +106,7 @@ class OfflineAIProvider implements GameProvider {
     _gameModelController.add(_gameModel);
   }
 
-  Future<void> _makeAIMove() async {
+  Future<void> makeAIMove() async {
     // Only proceed if it's AI's turn and game not over.
     if (_gameModel.gameStatus != GameStatus.inProgress ||
         _gameModel.currentPlayer != aiSymbol) {
@@ -127,8 +121,10 @@ class OfflineAIProvider implements GameProvider {
         ? Queue<int>.from(_gameModel.playerXMoves)
         : Queue<int>.from(_gameModel.playerOMoves);
 
-    final result = await _ai.alphaBetaPruning(
+    final result = _ai.alphaBetaPruning(
       board: currentBoard,
+      aiSymbol: "O",
+      opponentSymbol: "X",
       isMaximizing: true,
       depth: 0,
       playerMoves: aiMoves,

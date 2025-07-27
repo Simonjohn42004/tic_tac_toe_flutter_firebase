@@ -1,123 +1,141 @@
 import 'dart:collection';
 import 'dart:math';
-import 'package:logger/logger.dart';
 
+/// A Game AI class implementing Minimax with Alpha-Beta Pruning
+/// for a variant of Tic Tac Toe similar to Three Men's Morris.
+///
+/// Rules considered:
+/// - Each player can place up to 3 symbols.
+/// - On the 4th move, the oldest symbol is removed.
+/// - A symbol **cannot** be placed on the cell that's about to be removed on that move.
 class GameAI {
   final int maxDepth;
   final String aiSymbol; // "X" or "O"
   final String opponentSymbol;
-  final Logger _logger = Logger();
 
-  /// aiSymbol: "X" or "O". AI will maximize for this symbol.
-  GameAI({this.maxDepth = 20, required this.aiSymbol})
+  /// Constructor for [GameAI]
+  ///
+  /// Takes [aiSymbol] ("X" or "O"), and an optional [maxDepth] to limit recursion depth.
+  GameAI({this.maxDepth = 50, required this.aiSymbol})
     : opponentSymbol = aiSymbol == "X" ? "O" : "X";
 
-  /// Alpha-beta search for Three Men's Morris (3 pieces max; oldest piece removal).
-  Future<MapEntry<int?, int?>> alphaBetaPruning({
+  /// Executes Alpha-Beta Pruning and returns a MapEntry(score, bestMoveIndex)
+  ///
+  /// Parameters:
+  /// - [board]: The current state of the game board
+  /// - [isMaximizing]: Whether the AI is maximizing or minimizing
+  /// - [depth]: Current recursive depth
+  /// - [playerMoves]: Queue of moves made by current player
+  /// - [opponentMoves]: Queue of moves made by the opponent
+  /// - [maxDepth]: Optional override for max recursion
+  ///
+  /// Returns:
+  /// - A MapEntry of (score, bestMoveIndex)
+  MapEntry<int?, int?> alphaBetaPruning({
     required List<String> board,
     required bool isMaximizing,
     required int depth,
     required Queue<int> playerMoves,
     required Queue<int> opponentMoves,
+    int maxDepth = 20,
     int alpha = -1000,
     int beta = 1000,
-  }) async {
-    final winner = _checkWinner(board);
+    required String aiSymbol,
+    required String opponentSymbol,
+  }) {
+    // Check terminal condition - win/loss
+    String? winner = _checkWinner(board);
     if (winner != null) {
-      int score;
-      if (winner == aiSymbol) {
-        score = 50 - depth;
-      } else if (winner == opponentSymbol) {
-        score = -50 + depth;
-      } else {
-        score = 0;
-      }
-      _logger.d('Winner: $winner, Score: $score');
+      int score = (winner == aiSymbol) ? (50 - depth) : (-50 + depth);
       return MapEntry(score, null);
     }
 
+    // Depth limit
     if (depth >= maxDepth) {
-      _logger.d('Max depth reached at depth $depth');
       return MapEntry(0, null);
     }
 
-    String symbol = isMaximizing ? aiSymbol : opponentSymbol;
-    Queue<int> movesQueue = Queue.from(playerMoves);
-    Queue<int> opponentQueue = Queue.from(opponentMoves);
+    final symbol = isMaximizing ? aiSymbol : opponentSymbol;
+    final Queue<int> symbolMoves = Queue<int>.from(playerMoves);
+    final Queue<int> oppSymbolMoves = Queue<int>.from(opponentMoves);
+
+    final bool isSliding = symbolMoves.length >= 3;
+    final int? forbiddenIndex = isSliding ? symbolMoves.first : null;
+
     int bestScore = isMaximizing ? -1000 : 1000;
     int? bestMove;
-
-    // Determine game phase:
-    bool isSlidingPhase = movesQueue.length >= 3;
-    int forbiddenIndex = isSlidingPhase ? movesQueue.first : -1;
+    bool anyMovePossible = false;
 
     for (int i = 0; i < 9; i++) {
-      // Skip occupied cells
       if (board[i] != '') continue;
+      if (isSliding && i == forbiddenIndex) {
+        continue;
+      }
 
-      // In sliding phase, forbid placing on the oldest piece's cell
-      if (isSlidingPhase && i == forbiddenIndex) continue;
+      anyMovePossible = true;
 
-      // Make move
+      // Simulate placing symbol
       board[i] = symbol;
-      movesQueue.addLast(i);
+      symbolMoves.addLast(i);
 
       int? removed;
-      if (isSlidingPhase && movesQueue.length > 3) {
-        removed = movesQueue.removeFirst();
+      if (isSliding && symbolMoves.length > 3) {
+        removed = symbolMoves.removeFirst();
         board[removed] = '';
       }
 
-      // Recursive call, swapping players and roles
-      final result = await alphaBetaPruning(
+      // Recursive call
+      final result = alphaBetaPruning(
         board: board,
         isMaximizing: !isMaximizing,
         depth: depth + 1,
-        playerMoves: opponentQueue,
-        opponentMoves: movesQueue,
+        playerMoves: oppSymbolMoves,
+        opponentMoves: symbolMoves,
+        maxDepth: maxDepth,
         alpha: alpha,
         beta: beta,
+        aiSymbol: aiSymbol,
+        opponentSymbol: opponentSymbol,
       );
 
-      // Undo move for backtracking
+      // Undo move
+      board[i] = '';
+      symbolMoves.removeLast();
       if (removed != null) {
         board[removed] = symbol;
-        movesQueue.addFirst(removed);
+        symbolMoves.addFirst(removed);
       }
-      board[i] = '';
 
       int score = result.key ?? 0;
+      if (isMaximizing ? score > bestScore : score < bestScore) {
+        bestScore = score;
+        bestMove = i;
+      }
 
       if (isMaximizing) {
-        if (score > bestScore) {
-          bestScore = score;
-          bestMove = i;
-        }
         alpha = max(alpha, bestScore);
       } else {
-        if (score < bestScore) {
-          bestScore = score;
-          bestMove = i;
-        }
         beta = min(beta, bestScore);
       }
 
-      // Alpha-beta pruning
       if (beta <= alpha) {
-        _logger.d('Pruned at depth $depth: α=$alpha, β=$beta');
         break;
       }
     }
 
-    _logger.d(
-      'Returning from depth $depth: BestMove=$bestMove, Score=$bestScore',
-    );
+    if (!anyMovePossible) {
+      return MapEntry(0, null);
+    }
+
     return MapEntry(bestScore, bestMove);
   }
 
-  /// Check for winner on the board; returns symbol of winner or null if none
+  /// Checks if there is a winner on the board
+  ///
+  /// Returns:
+  /// - "X" or "O" if there's a winner, null otherwise
   String? _checkWinner(List<String> board) {
-    final List<List<int>> winCombos = [
+    final winPatterns = [
       [0, 1, 2],
       [3, 4, 5],
       [6, 7, 8],
@@ -127,10 +145,12 @@ class GameAI {
       [0, 4, 8],
       [2, 4, 6],
     ];
-    for (final combo in winCombos) {
-      int a = combo[0], b = combo[1], c = combo[2];
-      if (board[a] != '' && board[a] == board[b] && board[a] == board[c]) {
-        return board[a];
+    for (var pattern in winPatterns) {
+      String a = board[pattern[0]];
+      String b = board[pattern[1]];
+      String c = board[pattern[2]];
+      if (a != '' && a == b && b == c) {
+        return a;
       }
     }
     return null;
