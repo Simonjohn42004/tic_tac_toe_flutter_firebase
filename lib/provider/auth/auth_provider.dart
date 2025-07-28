@@ -1,4 +1,3 @@
-
 import 'package:tic_tac_toe/model/auth/auth_user.dart';
 
 abstract class AuthenticationProvider {
@@ -11,4 +10,5 @@ abstract class AuthenticationProvider {
   Future<void> logOut();
   Future<void> sendEmailVerification();
   Future<void> initialise();
+  Future<void> sendPasswordResetEmail({required String email});
 }

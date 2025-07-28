@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tic_tac_toe/bloc/auth/auth_bloc.dart';
+import 'package:tic_tac_toe/bloc/auth/auth_event.dart';
+import 'package:tic_tac_toe/bloc/auth/auth_state.dart';
 import 'package:tic_tac_toe/bloc/game/ai/offline_ai_bloc.dart';
 import 'package:tic_tac_toe/bloc/game/online/game_bloc.dart';
 import 'package:tic_tac_toe/bloc/game/offline/offline_game_bloc.dart';
@@ -8,6 +11,9 @@ import 'package:tic_tac_toe/provider/game/offline_ai_provider.dart';
 import 'package:tic_tac_toe/provider/game/offline_game_provider.dart';
 import 'package:tic_tac_toe/provider/game/online_game_provider.dart';
 import 'package:tic_tac_toe/screens/auth/login_screen.dart';
+import 'package:tic_tac_toe/screens/auth/online_home_page.dart';
+import 'package:tic_tac_toe/screens/auth/sign_up_screen.dart';
+import 'package:tic_tac_toe/screens/auth/verification_screen.dart';
 import 'package:tic_tac_toe/screens/game/game_screen.dart';
 import 'package:tic_tac_toe/screens/game/offline_ai_game_screen.dart'; // new import for AI screen
 import 'package:tic_tac_toe/screens/game/offline_game_screen.dart';
@@ -22,6 +28,44 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   String _roomId = '';
+
+  void _handleOnline() {
+    debugPrint('[DEBUG] Play online clicked');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              if (state is AuthStateUninitialized) {
+                context.read<AuthBloc>().add(AuthEventInitialise());
+              }
+              print("[DEBUG] State is $state");
+              if (state is AuthStateLoggedIn) {
+                return const OnlineHomePage();
+              } else if (state is AuthStateNeedsVerification) {
+                return VerificationPage(
+                  onResend: () {
+                    context.read<AuthBloc>().add(
+                      const AuthEventSendEmailVerification(),
+                    );
+                  },
+                );
+              } else if (state is AuthStateLoggedOut) {
+                return const LoginScreen();
+              } else if (state is AuthStateRegistering) {
+                return SignUpScreen();
+              } else {
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
+              }
+            },
+          );
+        },
+      ),
+    );
+  }
 
   /// Navigate to Human vs Human offline game
   void _handleOfflineHumanVsHuman() {
@@ -52,7 +96,7 @@ class _MainPageState extends State<MainPage> {
   }
 
   /// Navigate to online game (new room)
-  void _handleOnline() {
+  void _handleNewRoom() {
     debugPrint('[DEBUG] Online Play clicked');
     Navigator.push(
       context,
@@ -114,7 +158,7 @@ class _MainPageState extends State<MainPage> {
                 onTap: _handleOfflineHumanVsAI,
               ),
               const SizedBox(height: 20),
-              GlowingButton(label: 'Create Room', onTap: _handleOnline),
+              GlowingButton(label: 'Create Room', onTap: _handleNewRoom),
               const SizedBox(height: 32),
               SizedBox(
                 width: 260,
@@ -150,15 +194,7 @@ class _MainPageState extends State<MainPage> {
               const SizedBox(height: 16),
               GlowingButton(label: 'Enter Room', onTap: _handleJoinRoom),
               const SizedBox(height: 28),
-              GlowingButton(
-                label: "Play Online",
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LoginScreen()),
-                  );
-                },
-              ),
+              GlowingButton(label: "Play Online", onTap: _handleOnline),
               SizedBox(height: 20),
               GlowingButton(
                 label: "Show Rules",

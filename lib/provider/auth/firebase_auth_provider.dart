@@ -103,4 +103,17 @@ class FirebaseAuthProvider implements AuthenticationProvider {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
+
+  @override
+  Future<void> sendPasswordResetEmail({required String email}) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (e) {
+      // Handle Firebase specific errors if needed, or rethrow
+      throw Exception(e.message);
+    } catch (e) {
+      // Handle other errors
+      throw Exception('An error occurred while sending reset email');
+    }
+  }
 }
