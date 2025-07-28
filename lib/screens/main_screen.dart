@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tic_tac_toe/bloc/game/ai/offline_ai_bloc.dart';
 import 'package:tic_tac_toe/bloc/game/online/game_bloc.dart';
 import 'package:tic_tac_toe/bloc/game/offline/offline_game_bloc.dart';
+import 'package:tic_tac_toe/component/show_rules_dialog.dart';
 import 'package:tic_tac_toe/provider/game/offline_ai_provider.dart';
 import 'package:tic_tac_toe/provider/game/offline_game_provider.dart';
 import 'package:tic_tac_toe/provider/game/online_game_provider.dart';
@@ -147,6 +148,11 @@ class _MainPageState extends State<MainPage> {
               ),
               const SizedBox(height: 16),
               GlowingButton(label: 'Enter Room', onTap: _handleJoinRoom),
+              const SizedBox(height: 28),
+              GlowingButton(
+                label: "Show Rules",
+                onTap: () => showRulesDialog(context),
+              ),
             ],
           ),
         ),

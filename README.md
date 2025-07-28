@@ -69,10 +69,18 @@ lib/
 ### Step 1: Clone the repository
 ``` bash
 git clone https://github.com/Simonjohn42004/tic_tac_toe_flutter.git
+```
 
+### Step 2: Install dependencies
+``` bash
 flutter pub get
+```
 
+### Step 3: Run the application
+``` bash
 flutter run
+```
+
 
 ✅ Ensure Firebase is properly configured with google-services.json (Android) or GoogleService-Info.plist (iOS) for online features to work.
 
