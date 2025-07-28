@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:tic_tac_toe/firebase_options.dart';
+import 'package:tic_tac_toe/screens/auth/verification_screen.dart';
 import 'package:tic_tac_toe/screens/main_screen.dart';
 
 void main() async {
@@ -17,7 +18,7 @@ class TicTacToeApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const MainPage(),
+      home: VerificationPage(onResend: () {}),
       theme: ThemeData.dark(),
     );
   }

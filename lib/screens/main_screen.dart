@@ -7,9 +7,10 @@ import 'package:tic_tac_toe/component/show_rules_dialog.dart';
 import 'package:tic_tac_toe/provider/game/offline_ai_provider.dart';
 import 'package:tic_tac_toe/provider/game/offline_game_provider.dart';
 import 'package:tic_tac_toe/provider/game/online_game_provider.dart';
-import 'package:tic_tac_toe/screens/game_screen.dart';
-import 'package:tic_tac_toe/screens/offline_ai_game_screen.dart'; // new import for AI screen
-import 'package:tic_tac_toe/screens/offline_game_screen.dart';
+import 'package:tic_tac_toe/screens/auth/login_screen.dart';
+import 'package:tic_tac_toe/screens/game/game_screen.dart';
+import 'package:tic_tac_toe/screens/game/offline_ai_game_screen.dart'; // new import for AI screen
+import 'package:tic_tac_toe/screens/game/offline_game_screen.dart';
 import 'package:tic_tac_toe/component/glowing_button.dart';
 
 class MainPage extends StatefulWidget {
@@ -113,7 +114,7 @@ class _MainPageState extends State<MainPage> {
                 onTap: _handleOfflineHumanVsAI,
               ),
               const SizedBox(height: 20),
-              GlowingButton(label: 'Play Online', onTap: _handleOnline),
+              GlowingButton(label: 'Create Room', onTap: _handleOnline),
               const SizedBox(height: 32),
               SizedBox(
                 width: 260,
@@ -149,6 +150,16 @@ class _MainPageState extends State<MainPage> {
               const SizedBox(height: 16),
               GlowingButton(label: 'Enter Room', onTap: _handleJoinRoom),
               const SizedBox(height: 28),
+              GlowingButton(
+                label: "Play Online",
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginScreen()),
+                  );
+                },
+              ),
+              SizedBox(height: 20),
               GlowingButton(
                 label: "Show Rules",
                 onTap: () => showRulesDialog(context),
