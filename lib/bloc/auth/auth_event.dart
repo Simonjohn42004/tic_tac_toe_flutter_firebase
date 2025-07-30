@@ -37,3 +37,7 @@ class AuthEventForgotPassword extends AuthEvent {
   final String email;
   const AuthEventForgotPassword({required this.email});
 }
+
+class AuthEventReload extends AuthEvent {
+  const AuthEventReload();
+}

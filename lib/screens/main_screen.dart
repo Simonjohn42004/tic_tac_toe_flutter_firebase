@@ -1,3 +1,6 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tic_tac_toe/bloc/auth/auth_bloc.dart';
@@ -6,6 +9,7 @@ import 'package:tic_tac_toe/bloc/auth/auth_state.dart';
 import 'package:tic_tac_toe/bloc/game/ai/offline_ai_bloc.dart';
 import 'package:tic_tac_toe/bloc/game/online/game_bloc.dart';
 import 'package:tic_tac_toe/bloc/game/offline/offline_game_bloc.dart';
+import 'package:tic_tac_toe/component/loading/loading_screen.dart';
 import 'package:tic_tac_toe/component/show_rules_dialog.dart';
 import 'package:tic_tac_toe/provider/game/offline_ai_provider.dart';
 import 'package:tic_tac_toe/provider/game/offline_game_provider.dart';
@@ -29,18 +33,27 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   String _roomId = '';
 
-  void _handleOnline() {
+  void _handleOnline() async {
     debugPrint('[DEBUG] Play online clicked');
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await user.reload(); // 👈 Force Firebase to refresh user data
+      final updatedUser = FirebaseAuth.instance.currentUser;
+
+      if (updatedUser != null && updatedUser.emailVerified) {
+        // Dispatch event to tell Bloc that user is now verified
+        context.read<AuthBloc>().add(const AuthEventReload());
+      }
+    }
+
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) {
-          return BlocBuilder<AuthBloc, AuthState>(
+          return BlocConsumer<AuthBloc, AuthState>(
             builder: (context, state) {
-              if (state is AuthStateUninitialized) {
-                context.read<AuthBloc>().add(AuthEventInitialise());
-              }
-              print("[DEBUG] State is $state");
+              debugPrint("[DEBUG] State is $state");
+
               if (state is AuthStateLoggedIn) {
                 return const OnlineHomePage();
               } else if (state is AuthStateNeedsVerification) {
@@ -59,6 +72,19 @@ class _MainPageState extends State<MainPage> {
                 return const Scaffold(
                   body: Center(child: CircularProgressIndicator()),
                 );
+              }
+            },
+            listener: (BuildContext context, AuthState state) {
+              print(
+                "Entering the listerner with loading set to ${state.isLoading}",
+              );
+              if (state.isLoading) {
+                LoadingScreen().show(
+                  context: context,
+                  text: state.loadingText ?? "Connecting....",
+                );
+              } else {
+                LoadingScreen().hide();
               }
             },
           );
@@ -128,6 +154,12 @@ class _MainPageState extends State<MainPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    context.read<AuthBloc>().add(AuthEventInitialise());
+    super.initState();
   }
 
   @override

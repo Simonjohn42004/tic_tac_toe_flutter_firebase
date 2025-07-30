@@ -1,12 +1,16 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:developer' as devtools show log;
 
 import 'package:tic_tac_toe/bloc/auth/auth_event.dart';
 import 'package:tic_tac_toe/bloc/auth/auth_state.dart';
+import 'package:tic_tac_toe/model/profile/profile_data.dart';
+import 'package:tic_tac_toe/model/profile/profile_stats.dart';
 import 'package:tic_tac_toe/provider/auth/auth_provider.dart';
+import 'package:tic_tac_toe/provider/profile/profile_provider.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  AuthBloc(AuthenticationProvider provider)
+  AuthBloc(AuthenticationProvider provider, ProfileProvider profileProvider)
     : super(const AuthStateUninitialized(isLoading: true)) {
     // send email verification
     on<AuthEventSendEmailVerification>((event, emit) async {
@@ -25,6 +29,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       try {
         await provider.createUser(email: email, password: password);
         devtools.log("Register failure");
+        final userName = await profileProvider
+            .generateAndReserveUniqueUsername();
+        final newProfile = ProfileData(
+          userName: userName,
+          avatarIndex: 0,
+          stats: ProfileStats(
+            totalMatches: 0,
+            totalWins: 0,
+            totalLosses: 0,
+            overallWinRate: 0,
+            lastTenWinRate: 0,
+            rating: 0,
+          ),
+        );
+        profileProvider.saveUserProfile(
+          userId: userName,
+          newProfile: newProfile,
+        );
         provider.sendEmailVerification();
         emit(AuthStateNeedsVerification(isLoading: false));
       } on Exception catch (e) {
@@ -42,6 +64,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         );
       } on Exception catch (e) {
         emit(AuthStateForgotPassword(isLoading: false, exception: e));
+      }
+    });
+
+    // reload user event
+    on<AuthEventReload>((event, emit) async {
+      final user = FirebaseAuth.instance.currentUser;
+      await user?.reload();
+      final updatedUser = FirebaseAuth.instance.currentUser;
+
+      if (updatedUser != null && updatedUser.emailVerified) {
+        emit(AuthStateLoggedIn(user: provider.user!, isLoading: false));
+      } else {
+        emit(AuthStateNeedsVerification(isLoading: false));
       }
     });
 

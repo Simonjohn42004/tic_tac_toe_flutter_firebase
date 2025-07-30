@@ -2,8 +2,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tic_tac_toe/bloc/auth/auth_bloc.dart';
+import 'package:tic_tac_toe/bloc/auth/auth_event.dart';
 import 'package:tic_tac_toe/firebase_options.dart';
 import 'package:tic_tac_toe/provider/auth/firebase_auth_provider.dart';
+import 'package:tic_tac_toe/provider/profile/firebase_profile_provider.dart';
+import 'package:tic_tac_toe/provider/profile/profile_provider.dart';
 import 'package:tic_tac_toe/screens/main_screen.dart';
 
 void main() async {
@@ -19,7 +22,9 @@ class TicTacToeApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => AuthBloc(FirebaseAuthProvider()),
+      create: (context) =>
+          AuthBloc(FirebaseAuthProvider(), FirebaseRealtimeProfileProvider())
+            ..add(AuthEventInitialise()),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         home: const MainPage(),

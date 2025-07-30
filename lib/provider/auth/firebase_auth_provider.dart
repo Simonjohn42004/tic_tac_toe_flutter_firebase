@@ -102,6 +102,7 @@ class FirebaseAuthProvider implements AuthenticationProvider {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    await FirebaseAuth.instance.currentUser?.reload();
   }
 
   @override
